@@ -6,8 +6,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prettier: check": "prettier --check --ignore-path .gitignore './src/**/*.{js,jsx,ts,tsx,json,css,scss}'",
-    "prettier: write": "prettier --write --ignore-path .gitignore './src/**/*.{js,jsx,ts,tsx,json,css,scss}'"
+    "prettier:check": "prettier --check --ignore-path .gitignore './src/**/*.{js,jsx,ts,tsx,json,css,scss}'",
+    "prettier:write": "prettier --write --ignore-path .gitignore './src/**/*.{js,jsx,ts,tsx,json,css,scss}'"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
@@ -31,6 +31,6 @@
     "trailingComma": "all",
     "tabWidth": 2,
     "semi": true,
-    "doubleQuote": true
+    "singleQuote": false
   }
 }
