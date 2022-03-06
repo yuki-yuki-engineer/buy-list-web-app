@@ -10,6 +10,7 @@ import { useCallback, useState, VFC } from "react";
 import {
   DragDropContext,
   Draggable,
+  DraggableLocation,
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";
@@ -68,12 +69,26 @@ const BuyListContents: VFC = () => {
         },
       ],
     },
+    {
+      id: 3,
+      name: "ダイソー",
+      open: true,
+      buyItems: [
+        {
+          id: 6,
+          name: "模造紙",
+        },
+        {
+          id: 7,
+          name: "食器",
+        },
+      ],
+    },
   ];
 
   const [list, setExampleList] = useState(exampleList);
   const setOpen = useCallback((index: number) => {
     setExampleList((prevState) => {
-      console.log("###############");
       return prevState.flatMap((item, listIndex) => {
         if (index === listIndex) {
           return {
@@ -90,27 +105,95 @@ const BuyListContents: VFC = () => {
   }, []);
 
   const handleOnDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
     console.log(result);
-    // dropped outside the list
-    if (!result.destination) {
+    if (!destination) {
       return;
     }
 
-    if (result.type === "buy-list-category") {
-      const reorderList = reorder<BuyListCategory>(
-        list,
-        result.source.index,
-        result.destination.index,
-      );
+    if (source.droppableId === destination.droppableId) {
+      if (result.type === "buy-list-category") {
+        const reorderList = reorder<BuyListCategory>(
+          list,
+          source.index,
+          destination.index,
+        );
 
-      setExampleList(reorderList);
+        setExampleList(reorderList);
+      } else {
+        list[
+          parseInt(
+            result.source.droppableId.substring(
+              result.source.droppableId.length - 1,
+            ),
+            10,
+          )
+        ].buyItems = reorder<BuyListItem>(
+          list[
+            parseInt(
+              result.source.droppableId.substring(
+                result.source.droppableId.length - 1,
+              ),
+              10,
+            )
+          ].buyItems,
+          source.index,
+          destination.index,
+        );
+        setExampleList(list);
+      }
     } else {
-      list[parseInt(result.type, 10)].buyItems = reorder<BuyListItem>(
-        list[parseInt(result.type, 10)].buyItems,
-        result.source.index,
-        result.destination.index,
-      );
-      setExampleList(list);
+      if (result.type === "buy-list-category") {
+        const reorderList = reorder<BuyListCategory>(
+          list,
+          source.index,
+          destination.index,
+        );
+
+        setExampleList(reorderList);
+      } else {
+        if (!result.destination) {
+          return;
+        }
+        console.log(list);
+        const moveResult = move<BuyListItem>(
+          list[
+            parseInt(
+              result.source.droppableId.substring(
+                result.source.droppableId.length - 1,
+              ),
+              10,
+            )
+          ].buyItems,
+          list[
+            parseInt(
+              result.destination.droppableId.substring(
+                result.destination.droppableId.length - 1,
+              ),
+              10,
+            )
+          ].buyItems,
+          source,
+          destination,
+        );
+        list[
+          parseInt(
+            result.source.droppableId.substring(
+              result.source.droppableId.length - 1,
+            ),
+            10,
+          )
+        ].buyItems = moveResult.source;
+        list[
+          parseInt(
+            result.destination.droppableId.substring(
+              result.destination.droppableId.length - 1,
+            ),
+            10,
+          )
+        ].buyItems = moveResult.destination;
+        setExampleList(list);
+      }
     }
   };
 
@@ -180,6 +263,33 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   result.splice(endIndex, 0, removed);
 
   return result;
+};
+
+interface IMoveResponse<T> {
+  source: T[];
+  destination: T[];
+}
+
+const move = <T,>(
+  source: T[],
+  destination: T[],
+  droppableSource: DraggableLocation,
+  droppableDestination: DraggableLocation,
+): IMoveResponse<T> => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const [removed] = sourceClone.splice(droppableSource.index, 1);
+  destClone.splice(droppableDestination.index, 0, removed);
+
+  console.log("##################");
+  console.log(sourceClone);
+  console.log(destClone);
+  console.log("##################");
+
+  return {
+    source: sourceClone,
+    destination: destClone,
+  };
 };
 
 export default BuyListContents;

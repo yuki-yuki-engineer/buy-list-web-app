@@ -15,8 +15,8 @@ interface IProps {
 const BuyItemList: VFC<IProps> = ({ parentIndex, buyCategory }) => {
   return (
     <Droppable
-      droppableId={`droppable${buyCategory.id}`}
-      type={`${parentIndex}`}
+      droppableId={`droppable-buy-category-${parentIndex}`}
+      type={`droppable-buy-category`}
     >
       {(provided) => (
         <List
